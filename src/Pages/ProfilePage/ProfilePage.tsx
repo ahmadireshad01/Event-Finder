@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import ProfileEventCard from "../../components/ProfileEventCard";
+// import ProfileEventCard from "../../components/ProfileEventCard";
 import Profile from "../../components/Profile";
 import { Link } from "react-router-dom";
 import { savedEvents } from "../../data/saved-events-date";
 import { pastEvents } from "../../data/past-events-date";
-import ProfileNav from "../../components/ProfileNav";
+import Nav from "../../components/Nav";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<"saved" | "past">("saved");
@@ -12,8 +12,8 @@ export default function ProfilePage() {
 
   return (
     <>
+      <Nav />
       {/* Navigation */}
-      <ProfileNav />
 
       {/* Main Wrapper */}
       <div className="pt-24 flex flex-col items-center pb-12">
@@ -52,9 +52,7 @@ export default function ProfilePage() {
                   to={`/event/${theEvent.id}`}
                   key={theEvent.id}
                   className="block hover:scale-[1.01] transition-transform duration-150"
-                >
-                  <ProfileEventCard event={theEvent} />
-                </Link>
+                ></Link>
               ))
             ) : (
               <p className="text-gray-400 text-center py-6">

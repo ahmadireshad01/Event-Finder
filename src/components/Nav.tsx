@@ -7,7 +7,7 @@ export default function Nav() {
 
   const scrollDown = () => {
     window.scrollBy({ top: 600, behavior: "smooth" });
-    setIsMenuOpen(false); // Close menu after click
+    setIsMenuOpen(false);
   };
 
   const menuLinks = [
@@ -19,10 +19,10 @@ export default function Nav() {
   ];
 
   return (
-    <nav className="flex justify-between p-3 px-11 border-b items-center text-white fixed top-0 left-0 right-0 z-10  bg-slate-900 shadow-md">
+    <nav className="flex justify-between p-3 px-11  items-center text-white fixed top-0 left-0 right-0 z-10 bg-slate-900 shadow-md transition duration-300 hover:shadow-[0_0_25px_rgba(255,255,255,0.7)]">
       {/* Logo */}
       <h1
-        className="font-semibold text-lg pl-3 cursor-pointer shadow-lg z-20 animate-fadeIn"
+        className="font-semibold text-lg pl-3 cursor-pointer z-20 animate-fadeIn transition duration-300 hover:text-blue-400 "
         onClick={() => navigate("/")}
       >
         LocalEventFinder
@@ -34,20 +34,20 @@ export default function Nav() {
           <a
             key={link.name}
             onClick={link.onClick}
-            className="font-light cursor-pointer  hover:text-blue-400 transition"
+            className="font-light cursor-pointer transition duration-300 hover:text-blue-400 "
           >
             {link.name}
           </a>
         ))}
         <button
           onClick={() => navigate("/login")}
-          className="bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600"
+          className="bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-300 "
         >
           Login
         </button>
         <button
           onClick={() => navigate("/signup")}
-          className="bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600"
+          className="bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-300 "
         >
           Sign up
         </button>
@@ -55,8 +55,10 @@ export default function Nav() {
 
       {/* Mobile Menu Button */}
       <div className="md:hidden text-white">
-        <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          {/* Hamburger Icon */}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="transition duration-300 hover:shadow-[0_0_12px_rgba(255,255,255,0.7)] rounded-lg p-1"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -80,20 +82,20 @@ export default function Nav() {
               <a
                 key={link.name}
                 onClick={link.onClick}
-                className="font-light cursor-pointer text-white hover:text-blue-400 transition"
+                className="font-light cursor-pointer text-white transition duration-300 hover:text-blue-400 hover:shadow-[0_0_12px_rgba(255,255,255,0.7)] px-2 py-1 rounded-lg"
               >
                 {link.name}
               </a>
             ))}
             <button
               onClick={() => navigate("/login")}
-              className="bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600"
+              className="bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-300 hover:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
             >
               Login
             </button>
             <button
               onClick={() => navigate("/signup")}
-              className="bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600"
+              className="bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-300 hover:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
             >
               Sign up
             </button>

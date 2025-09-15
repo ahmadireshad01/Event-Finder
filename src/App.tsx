@@ -8,7 +8,6 @@ import SingleProduct from "./Pages/SingleProduct/SingleProduct";
 import ProductsPage from "./Pages/ProductsPage/ProductsPage";
 import CreateEventPage from "./Pages/CreateEventPage/CrearteEventPage";
 import ContactUsPage from "./Pages/ContactUsPage/ContactUsPage";
-import Practice from "./Pages/practiceAPI/Practice";
 import EditProfilePage from "./Pages/ProfilePage/EditProfilePage";
 import AboutUs from "./Pages/Aboutus/Aboutus";
 
@@ -18,7 +17,6 @@ function App() {
       <div className="bg-gray-900 min-h-screen">
         <BrowserRouter>
           <Routes>
-            <Route path="/practice" element={<Practice />} />
             <Route path="/EditProfile" element={<EditProfilePage />} />
             <Route path="/Login" element={<Login />} />
             <Route path="/Signup" element={<Login />} />

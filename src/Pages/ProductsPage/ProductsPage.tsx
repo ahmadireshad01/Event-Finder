@@ -1,8 +1,8 @@
-import ProductsNav from "../../components/ProductsNav";
 import { useState } from "react";
 import EventCard from "../../components/EventCard";
 import { eventData } from "../../data/event-data";
 import { Link } from "react-router-dom";
+import Nav from "../../components/Nav";
 
 export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,7 +52,7 @@ export default function ProductsPage() {
 
   return (
     <div>
-      <ProductsNav />
+      <Nav />
       <div className="pt-32 flex flex-col items-start mx-28 max-sm:mx-2 xl:mx-48">
         {/* Search Bar */}
         <div className="relative w-[80vw]">
