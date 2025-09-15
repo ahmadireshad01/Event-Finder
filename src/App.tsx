@@ -10,6 +10,7 @@ import CreateEventPage from "./Pages/CreateEventPage/CrearteEventPage";
 import ContactUsPage from "./Pages/ContactUsPage/ContactUsPage";
 import Practice from "./Pages/practiceAPI/Practice";
 import EditProfilePage from "./Pages/ProfilePage/EditProfilePage";
+import AboutUs from "./Pages/Aboutus/Aboutus";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/CreateEvent" element={<CreateEventPage />} />
             <Route path="/ContactUs" element={<ContactUsPage />} />
             <Route path="/Products" element={<ProductsPage />} />
+            <Route path="/AboutUs" element={<AboutUs />} /> {/* 👈 New Route */}
             <Route path="/event/:id" element={<SingleProduct />} />
             {/* Optional: redirect or fallback */}
             <Route path="*" element={<Homepage />} />

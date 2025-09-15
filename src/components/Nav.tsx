@@ -19,10 +19,10 @@ export default function Nav() {
   ];
 
   return (
-    <nav className="flex justify-between p-3 px-11 border-b items-center text-white fixed top-0 left-0 right-0 z-10 bg-slate-900 shadow-md">
+    <nav className="flex justify-between p-3 px-11 border-b items-center text-white fixed top-0 left-0 right-0 z-10  bg-slate-900 shadow-md">
       {/* Logo */}
       <h1
-        className="font-semibold text-lg pl-3 cursor-pointer"
+        className="font-semibold text-lg pl-3 cursor-pointer shadow-lg z-20 animate-fadeIn"
         onClick={() => navigate("/")}
       >
         LocalEventFinder
@@ -54,7 +54,7 @@ export default function Nav() {
       </div>
 
       {/* Mobile Menu Button */}
-      <div className="md:hidden">
+      <div className="md:hidden text-white">
         <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {/* Hamburger Icon */}
           <svg
@@ -75,12 +75,12 @@ export default function Nav() {
 
         {/* Mobile Dropdown Menu */}
         {isMenuOpen && (
-          <div className="absolute right-3 top-16 flex flex-col gap-3 bg-slate-900 p-4 rounded-lg shadow-lg z-20 animate-fadeIn">
+          <div className="text-white absolute right-3 top-16 flex flex-col gap-3 bg-slate-900 p-4 rounded-lg shadow-lg z-20 animate-fadeIn">
             {menuLinks.map((link) => (
               <a
                 key={link.name}
                 onClick={link.onClick}
-                className="font-light cursor-pointer hover:text-blue-400 transition"
+                className="font-light cursor-pointer text-white hover:text-blue-400 transition"
               >
                 {link.name}
               </a>

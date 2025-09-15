@@ -13,28 +13,34 @@ export default function ProductsNav() {
           src="./public/images/navimg/profilePageLeftImg.svg"
           alt=""
         />
-        <h1 className="font-semibold ">LocalEventFinder</h1>
+        <h1 className="font-semibold text-white">LocalEventFinder</h1>
         <div className="flex font-light gap-6 max-md:hidden">
-          <a onClick={() => navigate("/")} className="cursor-pointer">
+          <a
+            onClick={() => navigate("/")}
+            className="cursor-pointer text-white"
+          >
             Home
           </a>
-          <a onClick={() => navigate("/products")} className="cursor-pointer">
+          <a
+            onClick={() => navigate("/products")}
+            className="cursor-pointer text-white"
+          >
             catagories
           </a>
 
-          <a className="cursor-pointer">About Us</a>
+          <a className="cursor-pointer text-white">About Us</a>
         </div>
       </div>
       <div className="flex items-center gap-8 pr-3">
         <button
           onClick={() => navigate("/createEvent")}
-          className="max-md:hidden bg-blue-500 h-9 rounded-lg w-29 p-1 hover:opacity-70 transition ease-in-out"
+          className="max-md:hidden text-white cursor-pointer bg-blue-500 h-9 rounded-lg w-29 p-1  transition ease-in-out"
         >
           Create Event
         </button>
         <img
           onClick={() => navigate("/profile")}
-          className="w-9 max-md:hidden"
+          className="w-9 max-md:hidden cursor-pointer"
           src={profileInfo.image}
           alt=""
         />
@@ -64,9 +70,9 @@ export default function ProductsNav() {
             src="./public/images/navimg/profilePic.svg"
             alt=""
           />
-          <a className="cursor-pointer">Home</a>
-          <a className="cursor-pointer">catagories</a>
-          <a className="cursor-pointer">About Us</a>
+          <a className="cursor-pointer text-white">Home</a>
+          <a className="cursor-pointer text-white">catagories</a>
+          <a className="cursor-pointer text-white">About Us</a>
           <button className=" bg-blue-500 h-9 rounded-lg w-29 p-1 hover:opacity-70 transition ease-in-out">
             Create Event
           </button>

@@ -9,7 +9,6 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(10);
   const [isCatagoryOpen, setIsCatagoryOpen] = useState(false);
-
   const [isLocationOpen, setIsLocationOpen] = useState(false);
 
   // Filtering events
@@ -43,7 +42,11 @@ export default function ProductsPage() {
   };
 
   const handleCategoryClick = (category: string) => {
-    setSelectedCategory(category);
+    if (category === "All") {
+      setSelectedCategory(null); // reset filter
+    } else {
+      setSelectedCategory(category);
+    }
     setIsCatagoryOpen(false);
   };
 
@@ -59,7 +62,7 @@ export default function ProductsPage() {
             alt="search"
           />
           <input
-            className="ml-2 w-[74vw] bg-gray-800 h-11 rounded-lg pl-10"
+            className="ml-2 w-[74vw] bg-gray-800 h-11 rounded-lg pl-10 text-white"
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -92,20 +95,20 @@ export default function ProductsPage() {
             </button>
             {isCatagoryOpen && (
               <ul className="absolute z-10 mt-1 w-fit bg-gray-800 border border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
-                {["Music", "Food", "Art", "Education", "Tech"].map((cat) => (
-                  <li
-                    key={cat}
-                    onClick={() => handleCategoryClick(cat)}
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-700"
-                  >
-                    {cat}
-                  </li>
-                ))}
+                {["All", "Music", "Food", "Art", "Education", "Tech"].map(
+                  (cat) => (
+                    <li
+                      key={cat}
+                      onClick={() => handleCategoryClick(cat)}
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-700"
+                    >
+                      {cat}
+                    </li>
+                  )
+                )}
               </ul>
             )}
           </div>
-
-          {/* Date */}
 
           {/* Location */}
           <div className="relative">
@@ -144,35 +147,57 @@ export default function ProductsPage() {
         </div>
 
         {/* Event Grid */}
-        <div className="w-fit h-auto grid grid-cols-5 gap-3 max-md:grid-cols-3 max-lg:grid-cols-4 max-sm:grid-cols-2 max-sm:pl-10">
-          {visibleEvents.map((theEvent) => (
-            <Link key={theEvent.id} to={`/event/${theEvent.id}`}>
-              <EventCard
-                title={theEvent.title}
-                id={theEvent.id}
-                catagory={theEvent.catagory}
-                location={theEvent.location}
-                image={theEvent.image}
-              />
-            </Link>
-          ))}
+        <div className="w-full mt-6 grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {visibleEvents.map((theEvent, index) => {
+            // cycle different bg colors
+            const colors = [
+              "bg-gray-800",
+              "bg-gray-800",
+              "bg-gray-800",
+              "bg-gray-800",
+              "bg-gray-800",
+              "bg-gray-800",
+            ];
+            const cardBg = colors[index % colors.length];
+
+            return (
+              <Link
+                key={theEvent.id}
+                to={`/event/${theEvent.id}`}
+                className={`block ${cardBg} rounded-xl overflow-hidden shadow-md hover:shadow-xl transition duration-300`}
+              >
+                <EventCard
+                  title={theEvent.title}
+                  id={theEvent.id}
+                  catagory={theEvent.catagory}
+                  location={theEvent.location}
+                  image={theEvent.image}
+                />
+              </Link>
+            );
+          })}
         </div>
 
-        {/* Buttons */}
-        <button
-          className="bg-blue-500 w-32 h-11 rounded-lg mt-9 btn-hover"
-          onClick={loadMore}
-        >
-          Load More
-        </button>
-        {visibleCount > 10 && (
-          <button
-            className="bg-blue-500 w-32 h-9 rounded-lg mt-5 btn-hover"
-            onClick={showLess}
-          >
-            Show Less
-          </button>
-        )}
+        {/* Buttons - centered */}
+        <div className="flex gap-4 mt-8 justify-center w-full">
+          {visibleCount < filteredEvents.length && (
+            <button
+              className="bg-blue-500 w-32 h-9 rounded-lg btn-hover"
+              onClick={loadMore}
+            >
+              Load More
+            </button>
+          )}
+
+          {visibleCount > 10 && (
+            <button
+              className="bg-blue-500 w-32 h-9 rounded-lg btn-hover"
+              onClick={showLess}
+            >
+              Show Less
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

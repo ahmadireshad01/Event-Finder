@@ -1,41 +1,21 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import Nav from "../../components/Nav";
-import EventCard from "../../components/EventCard";
-import { Link } from "react-router-dom";
-import { upComimgEvents } from "../../data/upcoming-events";
 import Footer from "../../components/Footer";
 import PopularEvents from "../../components/PopularEvents";
-
-interface Event {
-  id: number | string;
-  title: string;
-  catagory: string; // You can change to 'category' if needed
-  address: string;
-  picture: string;
-}
+import Carts from "../../components/Carts";
 
 export default function Homepage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [visibleCount, setVisibleCount] = useState(10);
 
-  const searchHandle = (e: any) => {};
-
-  const filteredEvents = upComimgEvents.filter((event) => {
-    const matchesCategory = selectedCategory
-      ? event.catagory.toLowerCase() === selectedCategory.toLowerCase()
-      : true;
-    const matchesSearch = event.catagory
-      .toLowerCase()
-      .startsWith(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const searchHandle = (e: any) => {
+    e.preventDefault();
+    console.log("Search submitted:", searchQuery);
+  };
 
   return (
     <>
       <Nav />
-      <div className=" items-center flex flex-col">
+      <div className="items-center flex flex-col">
         {/* top of the page */}
         <div className="relative mt-32 w-full px-4">
           {/* Background Image */}
@@ -66,7 +46,7 @@ export default function Homepage() {
                 placeholder="Search for events"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-32 py-4 w-full bg-gray-900 rounded-2xl text-white   transition duration-200 ease-in-out"
+                className="pl-12 pr-32 py-4 w-full bg-gray-900 rounded-2xl text-white transition duration-200 ease-in-out"
               />
               <button
                 onClick={searchHandle}
@@ -80,7 +60,14 @@ export default function Homepage() {
         </div>
 
         {/* middle of the page */}
-        <PopularEvents />
+        <div>
+          {/* Pass searchQuery down to PopularEvents */}
+          <PopularEvents searchQuery={searchQuery} />
+        </div>
+
+        <div>
+          <Carts />
+        </div>
 
         {/* footer */}
         <div>
