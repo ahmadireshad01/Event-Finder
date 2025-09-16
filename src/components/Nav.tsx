@@ -6,7 +6,10 @@ export default function Nav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const scrollDown = () => {
-    window.scrollBy({ top: 600, behavior: "smooth" });
+    const section = document.getElementById("popular-categories");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
     setIsMenuOpen(false);
   };
 
@@ -14,8 +17,8 @@ export default function Nav() {
     { name: "Home", onClick: () => navigate("/") },
     { name: "Events", onClick: () => navigate("/products") },
     { name: "Categories", onClick: scrollDown },
-    { name: "Submit Event", onClick: () => navigate("/createEvent") },
-    { name: "Contact", onClick: () => navigate("/contactUs") },
+    { name: "Create Event", onClick: () => navigate("/createEvent") },
+    { name: "Contact Us", onClick: () => navigate("/contactUs") },
   ];
 
   return (

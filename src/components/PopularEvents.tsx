@@ -44,7 +44,10 @@ export default function PopularEvents({ searchQuery }: PopularEventsProps) {
   };
 
   return (
-    <div className="flex flex-col mt-8 w-full px-[130px] pt-6">
+    <div
+      id="popular-categories"
+      className="flex flex-col mt-8 w-full px-[130px] pt-6"
+    >
       <p className="font-semibold max-md:pl-7 text-3xl text-white">
         Popular Categories
       </p>
@@ -81,7 +84,7 @@ export default function PopularEvents({ searchQuery }: PopularEventsProps) {
           return (
             <Link to={`/event/${theEvent.id}`} key={theEvent.id}>
               <div
-                className={`rounded-xl transition shadow-none ${selectedStyle} flex flex-col justify-center items-center`}
+                className={`rounded-xl transition shadow-none ${selectedStyle} flex flex-col justify-center items-center text-white`}
                 style={{ height: "210px", width: "210px" }}
               >
                 <EventCard
