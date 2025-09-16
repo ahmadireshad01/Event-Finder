@@ -34,7 +34,6 @@ export default function CreateEventPage() {
       time: time,
       location: location,
       organizationName: organizationName,
-      contactInfo: contactInfo,
       image: file,
     };
 
