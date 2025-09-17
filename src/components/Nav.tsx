@@ -4,6 +4,7 @@ import { useState } from "react";
 export default function Nav() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [active, setActive] = useState("login"); // tracks active button
 
   const scrollDown = () => {
     const section = document.getElementById("popular-categories");
@@ -22,10 +23,10 @@ export default function Nav() {
   ];
 
   return (
-    <nav className="flex justify-between p-3 px-11  items-center text-white fixed top-0 left-0 right-0 z-10 bg-slate-900 shadow-md transition duration-300 hover:shadow-[0_0_25px_rgba(255,255,255,0.7)]">
+    <nav className="flex justify-between p-3 px-11 items-center text-white fixed top-0 left-0 right-0 z-10 bg-slate-900 shadow-md transition duration-300 hover:shadow-[0_0_25px_rgba(255,255,255,0.7)]">
       {/* Logo */}
       <h1
-        className="font-semibold text-lg pl-3 cursor-pointer z-20 animate-fadeIn transition duration-300 hover:text-blue-400 "
+        className="font-semibold text-lg pl-3 cursor-pointer z-20 animate-fadeIn transition duration-300 hover:text-blue-400"
         onClick={() => navigate("/")}
       >
         LocalEventFinder
@@ -37,23 +38,39 @@ export default function Nav() {
           <a
             key={link.name}
             onClick={link.onClick}
-            className="font-light cursor-pointer transition duration-300 hover:text-blue-400 "
+            className="font-light cursor-pointer transition duration-300 hover:text-blue-400"
           >
             {link.name}
           </a>
         ))}
-        <button
-          onClick={() => navigate("/login")}
-          className="bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-300 "
-        >
-          Login
-        </button>
-        <button
-          onClick={() => navigate("/signup")}
-          className="bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-300 "
-        >
-          Sign up
-        </button>
+
+        {/* Combined Login/Signup buttons */}
+        <div className="flex gap-2 bg-blue-500 rounded-4xl p-1">
+          <button
+            onClick={() => {
+              setActive("login");
+              navigate("/login");
+            }}
+            className={`px-3 py-1 rounded-4xl transition duration-300 ${
+              active === "login"
+                ? "hover:bg-black text-white"
+                : "hover:bg-blue-600 hover:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
+            }`}
+          >
+            Login
+          </button>
+          <button
+            onClick={() => {
+              setActive("signup");
+              navigate("/signup");
+            }}
+            className={`px-3 py-1 rounded-4xl transition duration-300 ${
+              active === "signup" ? "bg-black text-white" : "hover:bg-black"
+            }`}
+          >
+            Sign up
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu Button */}
@@ -90,18 +107,38 @@ export default function Nav() {
                 {link.name}
               </a>
             ))}
-            <button
-              onClick={() => navigate("/login")}
-              className="bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-300 hover:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
-            >
-              Login
-            </button>
-            <button
-              onClick={() => navigate("/signup")}
-              className="bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-300 hover:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
-            >
-              Sign up
-            </button>
+
+            {/* Same combined Login/Signup buttons for mobile */}
+            <div className="flex gap-2 bg-blue-500 rounded-lg p-1">
+              <button
+                onClick={() => {
+                  setActive("login");
+                  navigate("/login");
+                  setIsMenuOpen(false);
+                }}
+                className={`px-3 py-1 rounded-lg transition duration-300 ${
+                  active === "login"
+                    ? " text-white"
+                    : "hover:bg-blue-600 hover:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
+                }`}
+              >
+                Login
+              </button>
+              <button
+                onClick={() => {
+                  setActive("signup");
+                  navigate("/signup");
+                  setIsMenuOpen(false);
+                }}
+                className={`px-3 py-1 rounded-lg transition duration-300 ${
+                  active === "signup"
+                    ? "hover:bg-black text-white"
+                    : "hover:bg-blue-600 hover:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
+                }`}
+              >
+                Sign up
+              </button>
+            </div>
           </div>
         )}
       </div>

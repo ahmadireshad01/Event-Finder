@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,7 +12,22 @@ export default function Login() {
     path.includes("signup") ? "signup" : "login"
   );
 
-  // When route changes, update activeTab
+  // Form state
+  const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [signupData, setSignupData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [verificationCode, setVerificationCode] = useState("");
+  const [showVerification, setShowVerification] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ text: "", type: "" });
+
+  // Update active tab when route changes
   useEffect(() => {
     if (path.includes("signup")) {
       setActiveTab("signup");
@@ -20,144 +36,317 @@ export default function Login() {
     }
   }, [path]);
 
-  // Tab click handler: change URL & active tab
+  // Tab switch
   const handleTabClick = (tab: "login" | "signup") => {
     setActiveTab(tab);
-    if (tab === "login") {
-      navigate("/Login");
-    } else {
-      navigate("/Signup");
+    if (tab === "login") navigate("/Login");
+    else navigate("/Signup");
+  };
+
+  // Handlers
+  const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginData({ ...loginData, [e.target.id]: e.target.value });
+  };
+
+  const handleSignupChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignupData({ ...signupData, [e.target.id]: e.target.value });
+  };
+
+  // Login submit
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const response = await axios.post("http://172.30.10.42:8000/users/login", loginData);
+      localStorage.setItem("token", response.data.token);
+      setMessage({ text: "Login successful!", type: "success" });
+      navigate("/");
+    } catch (error: any) {
+      setMessage({
+        text: error.response?.data?.error || "Login failed",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Send verification code (during signup)
+  const handleSendCode = async () => {
+    if (!signupData.email) {
+      setMessage({ text: "Please enter your email first", type: "error" });
+      return;
+    }
+    setLoading(true);
+    try {
+      await axios.post("http://172.30.10.42:8000/users/send-code", {
+        email: signupData.email,
+      });
+      setShowVerification(true);
+      setMessage({
+        text: "Verification code sent to your email",
+        type: "success",
+      });
+    } catch (error: any) {
+      setMessage({
+        text: error.response?.data?.error || "Failed to send code",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Verify code
+  const handleVerifyCode = async () => {
+    if (!verificationCode) {
+      setMessage({ text: "Please enter the verification code", type: "error" });
+      return;
+    }
+    setLoading(true);
+    try {
+      await axios.post("http://172.30.10.42:8000/users/verify-code", {
+        email: signupData.email,
+        code: verificationCode,
+      });
+      setMessage({ text: "Email verified successfully!", type: "success" });
+      setEmailVerified(true);
+      498343;
+      setShowVerification(false);
+    } catch (error: any) {
+      setMessage({
+        text: error.response?.data?.error || "Invalid verification code",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Signup submit
+  const handleSignupSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailVerified) {
+      setMessage({
+        text: "Please verify your email before signing up",
+        type: "error",
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        "http://172.30.10.42:8000/users",
+        signupData
+      );
+      localStorage.setItem("token", response.data.token);
+      setMessage({ text: "Sign up successful!", type: "success" });
+      navigate("/");
+    } catch (error: any) {
+      setMessage({
+        text: error.response?.data?.error || "Sign up failed",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <div className="h-screen flex items-center justify-center p-6 ">
-        <div className="w-full max-w-md rounded-md p-8 text-gray-300 ">
-          {/* Tabs */}
-          <div className="flex border-b border-gray-700 mb-6">
-            <button
-              className={`flex-1 py-2 text-center text-lg font-semibold ${
-                activeTab === "login"
-                  ? "border-b-2 border-blue-500 text-white"
-                  : "text-gray-400"
-              }`}
-              onClick={() => handleTabClick("login")}
-            >
-              Login
-            </button>
-            <button
-              className={`flex-1 py-2 text-center text-lg font-semibold ${
-                activeTab === "signup"
-                  ? "border-b-2 border-blue-500 text-white"
-                  : "text-gray-400"
-              }`}
-              onClick={() => handleTabClick("signup")}
-            >
-              Sign Up
-            </button>
+    <div className="h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-md rounded-md p-8 text-gray-300">
+        {/* Message alert */}
+        {message.text && (
+          <div
+            className={`mb-4 p-3 rounded-md text-center ${
+              message.type === "success"
+                ? "bg-green-800 text-green-200"
+                : "bg-red-800 text-red-200"
+            }`}
+          >
+            {message.text}
           </div>
+        )}
 
-          {/* Form */}
-          {activeTab === "login" ? (
-            <form className="space-y-6">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block mb-2 text-sm text-gray-400"
-                >
-                  Email
-                </label>
+        {/* Tabs */}
+        <div className="flex border-b border-gray-700 mb-6">
+          <button
+            className={`flex-1 py-2 text-center text-lg font-semibold ${
+              activeTab === "login"
+                ? "border-b-2 border-blue-500 text-white"
+                : "text-gray-400"
+            }`}
+            onClick={() => handleTabClick("login")}
+          >
+            Login
+          </button>
+          <button
+            className={`flex-1 py-2 text-center text-lg font-semibold ${
+              activeTab === "signup"
+                ? "border-b-2 border-blue-500 text-white"
+                : "text-gray-400"
+            }`}
+            onClick={() => handleTabClick("signup")}
+          >
+            Sign Up
+          </button>
+        </div>
+
+        {/* Login Form */}
+        {activeTab === "login" && (
+          <form className="space-y-6" onSubmit={handleLoginSubmit}>
+            <div>
+              <label
+                htmlFor="email"
+                className="block mb-2 text-sm text-gray-400"
+              >
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="your.email@example.com"
+                value={loginData.email}
+                onChange={handleLoginChange}
+                className="w-full px-4 py-2 bg-gray-700 rounded-md border border-gray-600 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block mb-2 text-sm text-gray-400"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                value={loginData.password}
+                onChange={handleLoginChange}
+                className="w-full px-4 py-2 bg-gray-700 rounded-md border border-gray-600 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2 rounded-md text-white font-semibold bg-blue-600 hover:bg-blue-700 transition disabled:opacity-50"
+            >
+              {loading ? "Logging in..." : "Login"}
+            </button>
+          </form>
+        )}
+
+        {/* Signup Form */}
+        {activeTab === "signup" && (
+          <form className="space-y-6" onSubmit={handleSignupSubmit}>
+            <div>
+              <label
+                htmlFor="name"
+                className="block mb-2 text-sm text-gray-400"
+              >
+                Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                placeholder="Full name"
+                value={signupData.name}
+                onChange={handleSignupChange}
+                className="w-full px-4 py-2 bg-gray-700 rounded-md border border-gray-600 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="email"
+                className="block mb-2 text-sm text-gray-400"
+              >
+                Email address
+              </label>
+              <div className="flex space-x-2">
                 <input
                   id="email"
                   type="email"
-                  placeholder="your.email@example.com"
-                  className="w-full px-4 py-2 bg-gray-700 rounded-md border border-gray-600 placeholder-gray-500 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Email address"
+                  value={signupData.email}
+                  onChange={handleSignupChange}
+                  className="flex-1 px-4 py-2 bg-gray-700 rounded-md border border-gray-600 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
                 />
+                <button
+                  type="button"
+                  onClick={handleSendCode}
+                  disabled={loading}
+                  className="px-3 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition disabled:opacity-50"
+                >
+                  {loading ? "Sending..." : "Send Code"}
+                </button>
               </div>
+            </div>
 
+            {showVerification && (
               <div>
                 <label
-                  htmlFor="password"
+                  htmlFor="verification-code"
                   className="block mb-2 text-sm text-gray-400"
                 >
-                  Password
+                  Verification Code
                 </label>
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  className="w-full px-4 py-2 bg-gray-700 rounded-md border border-gray-600 placeholder-gray-500 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <div className="mt-1 text-xs text-blue-400 cursor-pointer hover:underline">
-                  Forgot Password?
+                <div className="flex space-x-2">
+                  <input
+                    id="verification-code"
+                    type="text"
+                    placeholder="Enter code"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    className="flex-1 px-4 py-2 bg-gray-700 rounded-md border border-gray-600 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={handleVerifyCode}
+                    disabled={loading}
+                    className="px-3 py-2 rounded-md text-white bg-green-600 hover:bg-green-700 transition disabled:opacity-50"
+                  >
+                    {loading ? "Verifying..." : "Verify"}
+                  </button>
                 </div>
               </div>
+            )}
 
-              <button
-                type="submit"
-                className="w-full py-2 rounded-md text-white font-semibold hover:bg-blue-600 transition"
+            <div>
+              <label
+                htmlFor="password"
+                className="block mb-2 text-sm text-gray-400"
               >
-                Login
-              </button>
-            </form>
-          ) : (
-            <form className="space-y-6">
-              {/* Example Sign Up form */}
-              <div>
-                <label
-                  htmlFor="email-name"
-                  className="block mb-2 text-sm text-gray-400"
-                >
-                  Name
-                </label>
-                <input
-                  id="email-name"
-                  type="name"
-                  placeholder="Full name"
-                  className="w-full px-4 py-2 bg-gray-700 rounded-md border border-gray-600 placeholder-gray-500 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Password (min. 6 characters)"
+                value={signupData.password}
+                onChange={handleSignupChange}
+                className="w-full px-4 py-2 bg-gray-700 rounded-md border border-gray-600 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
 
-              <div>
-                <label
-                  htmlFor="email address"
-                  className="block mb-2 text-sm text-gray-400"
-                >
-                  Email address
-                </label>
-                <input
-                  id="email address"
-                  type="email address"
-                  placeholder="Email address"
-                  className="w-full px-4 py-2 bg-gray-700 rounded-md border border-gray-600 placeholder-gray-500 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="password-signup"
-                  className="block mb-2 text-sm text-gray-400"
-                >
-                  Password
-                </label>
-                <input
-                  id="password-signup"
-                  type="email address"
-                  placeholder="Email address"
-                  className="w-full px-4 py-2 bg-gray-700 rounded-md border border-gray-600 placeholder-gray-500 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-2 rounded-md text-white font-semibold hover:bg-blue-600 transition"
-              >
-                Sign Up
-              </button>
-            </form>
-          )}
-        </div>
+            <button
+              type="submit"
+              disabled={loading || !emailVerified}
+              className="w-full py-2 rounded-md text-white font-semibold bg-blue-600 hover:bg-blue-700 transition disabled:opacity-50"
+            >
+              {loading ? "Creating account..." : "Sign Up"}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
