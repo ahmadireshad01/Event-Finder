@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-// import ProfileEventCard from "../../components/ProfileEventCard";
 import Profile from "../../components/Profile";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { savedEvents } from "../../data/saved-events-date";
 import { pastEvents } from "../../data/past-events-date";
 import Nav from "../../components/Nav";
@@ -9,16 +8,33 @@ import Nav from "../../components/Nav";
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<"saved" | "past">("saved");
   const eventsToShow = activeTab === "saved" ? savedEvents : pastEvents;
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Remove token or any user info from localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("profileInfo"); // if you store profile info too
+    navigate("/"); // redirect to home page
+    window.location.reload(); // optional: refresh to update Nav
+  };
 
   return (
     <>
       <Nav />
-      {/* Navigation */}
 
-      {/* Main Wrapper */}
       <div className="pt-24 flex flex-col items-center pb-12">
         {/* Profile Section */}
         <Profile />
+
+        {/* Logout Button */}
+        <div className="mt-4">
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition duration-200"
+          >
+            Logout
+          </button>
+        </div>
 
         {/* Content Container */}
         <div className="mx-[10vw] flex flex-col items-center mt-6 max-w-[1600px] w-full">

@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { eventData } from "../../data/event-data";
 import Nav from "../../components/Nav";
 
 export default function CreateEventPage() {
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [catagory, setCatagory] = useState("");
@@ -13,6 +15,15 @@ export default function CreateEventPage() {
   const [contactInfo, setContactInfo] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+
+  // Check login on page load
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You need to login first to create an event!");
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const handleFileChange = (e: any) => {
     const selectedFile = e.target.files[0];
@@ -27,19 +38,19 @@ export default function CreateEventPage() {
 
     const newEvent = {
       id: (eventData.length + 1).toString(),
-      catagory: catagory,
-      title: title,
-      description: description,
+      catagory,
+      title,
+      description,
       date: new Date(date),
-      time: time,
-      location: location,
-      organizationName: organizationName,
+      time,
+      location,
+      organizationName,
       image: file,
     };
 
-    console.log(newEvent);
+    console.log("Event created:", newEvent);
 
-    // reset fields
+    // Reset fields after submit
     setTitle("");
     setDescription("");
     setCatagory("");
@@ -48,6 +59,8 @@ export default function CreateEventPage() {
     setLocation("");
     setOrganizationName("");
     setContactInfo("");
+    setFile(null);
+    setPreview(null);
   };
 
   return (
@@ -58,7 +71,6 @@ export default function CreateEventPage() {
           <h1 className="text-3xl font-semibold mb-6">Create Event</h1>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Event Title */}
             <div>
               <label className="block mb-1 font-medium">Event Title</label>
               <input
@@ -70,7 +82,6 @@ export default function CreateEventPage() {
               />
             </div>
 
-            {/* Description */}
             <div>
               <label className="block mb-1 font-medium">Description</label>
               <textarea
@@ -81,7 +92,6 @@ export default function CreateEventPage() {
               ></textarea>
             </div>
 
-            {/* Category - Dropdown */}
             <div>
               <label className="block mb-1 font-medium">Category</label>
               <select
@@ -99,7 +109,6 @@ export default function CreateEventPage() {
               </select>
             </div>
 
-            {/* Date */}
             <div>
               <label className="block mb-1 font-medium">Date</label>
               <input
@@ -110,7 +119,6 @@ export default function CreateEventPage() {
               />
             </div>
 
-            {/* Time */}
             <div>
               <label className="block mb-1 font-medium">Time</label>
               <input
@@ -121,7 +129,6 @@ export default function CreateEventPage() {
               />
             </div>
 
-            {/* Location */}
             <div>
               <label className="block mb-1 font-medium">Location</label>
               <input
@@ -133,7 +140,6 @@ export default function CreateEventPage() {
               />
             </div>
 
-            {/* Organizer Name */}
             <div>
               <label className="block mb-1 font-medium">Organizer Name</label>
               <input
@@ -145,7 +151,6 @@ export default function CreateEventPage() {
               />
             </div>
 
-            {/* Contact Information */}
             <div>
               <label className="block mb-1 font-medium">
                 Contact Information
@@ -159,7 +164,6 @@ export default function CreateEventPage() {
               />
             </div>
 
-            {/* File Upload */}
             <div className="border border-dashed border-gray-600 bg-[#1e1f24] rounded-md p-6 text-center hover:border-blue-500 cursor-pointer">
               <p className="text-sm font-semibold text-white mb-1">
                 Upload Event Image
@@ -169,12 +173,11 @@ export default function CreateEventPage() {
                 <img
                   src={preview}
                   alt="Preview"
-                  style={{ width: 200, height: "auto", marginTop: "10px" }}
+                  style={{ width: 200, marginTop: 10 }}
                 />
               )}
             </div>
 
-            {/* Submit Button */}
             <div>
               <button
                 type="submit"

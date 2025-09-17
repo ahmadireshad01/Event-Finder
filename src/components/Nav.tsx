@@ -1,24 +1,52 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Nav() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [active, setActive] = useState("login"); // tracks active button
+  const [active, setActive] = useState("login");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  // Check login state on mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const image = localStorage.getItem("profileImage");
+    if (token) {
+      setIsLoggedIn(true);
+      if (image) setProfileImage(image);
+    }
+  }, []);
 
   const scrollDown = () => {
     const section = document.getElementById("popular-categories");
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
-    }
+    if (section) section.scrollIntoView({ behavior: "smooth" });
     setIsMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("profileImage");
+    setIsLoggedIn(false);
+    navigate("/");
   };
 
   const menuLinks = [
     { name: "Home", onClick: () => navigate("/") },
     { name: "Events", onClick: () => navigate("/products") },
     { name: "Categories", onClick: scrollDown },
-    { name: "Create Event", onClick: () => navigate("/createEvent") },
+    {
+      name: "Create Event",
+      onClick: () => {
+        const token = localStorage.getItem("token");
+        if (token) {
+          navigate("/createEvent");
+        } else {
+          alert("You must login or signup to create an event!");
+          navigate("/login");
+        }
+      },
+    },
     { name: "Contact Us", onClick: () => navigate("/contactUs") },
   ];
 
@@ -44,36 +72,63 @@ export default function Nav() {
           </a>
         ))}
 
-        {/* Combined Login/Signup buttons */}
-        <div className="flex gap-2 bg-blue-500 rounded-4xl p-1">
-          <button
-            onClick={() => {
-              setActive("login");
-              navigate("/login");
-            }}
-            className={`px-3 py-1 rounded-4xl transition duration-300 ${
-              active === "login"
-                ? "hover:bg-black text-white"
-                : "hover:bg-blue-600 hover:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
-            }`}
-          >
-            Login
-          </button>
-          <button
-            onClick={() => {
-              setActive("signup");
-              navigate("/signup");
-            }}
-            className={`px-3 py-1 rounded-4xl transition duration-300 ${
-              active === "signup" ? "bg-black text-white" : "hover:bg-black"
-            }`}
-          >
-            Sign up
-          </button>
-        </div>
+        {isLoggedIn ? (
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-full cursor-pointer flex items-center justify-center bg-blue-500 text-white text-lg hover:scale-110 transition transform shadow-md"
+              onClick={() => navigate("/profile")}
+              title="Profile"
+            >
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                "👤"
+              )}
+            </div>
+            {/* <button
+              onClick={handleLogout}
+              className="bg-red-600 px-3 py-1 rounded-md hover:bg-red-700 transition text-white"
+            >
+              Logout
+            </button> */}
+          </div>
+        ) : (
+          <div className="flex gap-2 bg-blue-500 rounded-4xl p-1">
+            <button
+              onClick={() => {
+                setActive("login");
+                navigate("/login");
+              }}
+              className={`px-3 py-1 rounded-4xl transition duration-300 transform ${
+                active === "login"
+                  ? "hover:bg-black text-white scale-105 "
+                  : "hover:bg-black hover:scale-105"
+              }`}
+            >
+              Login
+            </button>
+            <button
+              onClick={() => {
+                setActive("signup");
+                navigate("/signup");
+              }}
+              className={`px-3 py-1 rounded-4xl transition duration-300 transform ${
+                active === "signup"
+                  ? "bg-black text-white scale-105 "
+                  : "hover:bg-black hover:scale-105 "
+              }`}
+            >
+              Sign up
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Mobile Menu Button */}
+      {/* Mobile Menu */}
       <div className="md:hidden text-white">
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -95,7 +150,6 @@ export default function Nav() {
           </svg>
         </button>
 
-        {/* Mobile Dropdown Menu */}
         {isMenuOpen && (
           <div className="text-white absolute right-3 top-16 flex flex-col gap-3 bg-slate-900 p-4 rounded-lg shadow-lg z-20 animate-fadeIn">
             {menuLinks.map((link) => (
@@ -108,37 +162,62 @@ export default function Nav() {
               </a>
             ))}
 
-            {/* Same combined Login/Signup buttons for mobile */}
-            <div className="flex gap-2 bg-blue-500 rounded-lg p-1">
-              <button
-                onClick={() => {
-                  setActive("login");
-                  navigate("/login");
-                  setIsMenuOpen(false);
-                }}
-                className={`px-3 py-1 rounded-lg transition duration-300 ${
-                  active === "login"
-                    ? " text-white"
-                    : "hover:bg-blue-600 hover:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
-                }`}
-              >
-                Login
-              </button>
-              <button
-                onClick={() => {
-                  setActive("signup");
-                  navigate("/signup");
-                  setIsMenuOpen(false);
-                }}
-                className={`px-3 py-1 rounded-lg transition duration-300 ${
-                  active === "signup"
-                    ? "hover:bg-black text-white"
-                    : "hover:bg-blue-600 hover:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
-                }`}
-              >
-                Sign up
-              </button>
-            </div>
+            {isLoggedIn ? (
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-full cursor-pointer flex items-center justify-center bg-blue-500 text-white text-lg hover:scale-110 transition transform shadow-md"
+                  onClick={() => navigate("/profile")}
+                  title="Profile"
+                >
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    "👤"
+                  )}
+                </div>
+                {/* <button
+                  onClick={handleLogout}
+                  className="bg-red-600 px-3 py-1 rounded-md hover:bg-red-700 transition text-white"
+                >
+                  Logout
+                </button> */}
+              </div>
+            ) : (
+              <div className="flex gap-2 bg-blue-500 rounded-lg p-1">
+                <button
+                  onClick={() => {
+                    setActive("login");
+                    navigate("/login");
+                    setIsMenuOpen(false);
+                  }}
+                  className={`px-3 py-1 rounded-lg transition duration-300 transform ${
+                    active === "login"
+                      ? "bg-black text-white scale-105 shadow-[0_0_12px_rgba(255,255,255,0.8)]"
+                      : "hover:bg-black hover:scale-105 hover:shadow-[0_0_15px_rgba(0,0,0,0.8)]"
+                  }`}
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => {
+                    setActive("signup");
+                    navigate("/signup");
+                    setIsMenuOpen(false);
+                  }}
+                  className={`px-3 py-1 rounded-lg transition duration-300 transform ${
+                    active === "signup"
+                      ? "bg-black text-white scale-105 shadow-[0_0_12px_rgba(255,255,255,0.8)]"
+                      : "hover:bg-black hover:scale-105 hover:shadow-[0_0_15px_rgba(0,0,0,0.8)]"
+                  }`}
+                >
+                  Sign up
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
