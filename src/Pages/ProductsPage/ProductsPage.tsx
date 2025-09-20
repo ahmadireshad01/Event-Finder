@@ -94,7 +94,7 @@ export default function ProductsPage() {
               </svg>
             </button>
             {isCatagoryOpen && (
-              <ul className="absolute z-10 mt-1 w-fit bg-gray-800 border border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
+              <ul className="absolute z-10 mt-1 text-white w-fit bg-gray-800 border border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
                 {["All", "Music", "Food", "Art", "Education", "Tech"].map(
                   (cat) => (
                     <li
@@ -106,41 +106,6 @@ export default function ProductsPage() {
                     </li>
                   )
                 )}
-              </ul>
-            )}
-          </div>
-
-          {/* Location */}
-          <div className="relative">
-            <button
-              onClick={() => setIsLocationOpen(!isLocationOpen)}
-              className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700"
-            >
-              Location
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-            {isLocationOpen && (
-              <ul className="absolute z-10 mt-1 w-fit bg-gray-800 border border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
-                {["London", "New York", "Tokyo"].map((loc) => (
-                  <li
-                    key={loc}
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-700"
-                  >
-                    {loc}
-                  </li>
-                ))}
               </ul>
             )}
           </div>
