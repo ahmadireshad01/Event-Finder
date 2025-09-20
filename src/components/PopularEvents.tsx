@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { upComimgEvents } from "../data/upcoming-events";
 import EventCard from "./EventCard";
@@ -10,8 +10,17 @@ interface PopularEventsProps {
 export default function PopularEvents({ searchQuery }: PopularEventsProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(10);
+  const [allEvents, setAllEvents] = useState<any[]>([]);
 
-  const filteredEvents = upComimgEvents.filter((event) => {
+  // Load default + created events
+  useEffect(() => {
+    const storedEvents = JSON.parse(
+      localStorage.getItem("createdEvents") || "[]"
+    );
+    setAllEvents([...storedEvents, ...upComimgEvents]);
+  }, []);
+
+  const filteredEvents = allEvents.filter((event) => {
     const query = searchQuery.toLowerCase();
 
     const matchesCategory = selectedCategory

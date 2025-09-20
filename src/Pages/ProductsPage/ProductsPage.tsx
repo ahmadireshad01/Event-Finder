@@ -9,7 +9,6 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(10);
   const [isCatagoryOpen, setIsCatagoryOpen] = useState(false);
-  const [isLocationOpen, setIsLocationOpen] = useState(false);
 
   // Filtering events
   const filteredEvents = eventData.filter((event) => {
