@@ -18,23 +18,9 @@ export default function Nav() {
     }
   }, []);
 
-  const scrollDown = () => {
-    const section = document.getElementById("popular-categories");
-    if (section) section.scrollIntoView({ behavior: "smooth" });
-    setIsMenuOpen(false);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("profileImage");
-    setIsLoggedIn(false);
-    navigate("/");
-  };
-
   const menuLinks = [
     { name: "Home", onClick: () => navigate("/") },
     { name: "Events", onClick: () => navigate("/products") },
-    { name: "Categories", onClick: scrollDown },
     {
       name: "Create Event",
       onClick: () => {
@@ -48,6 +34,7 @@ export default function Nav() {
       },
     },
     { name: "Contact Us", onClick: () => navigate("/contactUs") },
+    { name: "About Us", onClick: () => navigate("/aboutUs") }, // Added About Us
   ];
 
   return (
@@ -89,12 +76,6 @@ export default function Nav() {
                 "👤"
               )}
             </div>
-            {/* <button
-              onClick={handleLogout}
-              className="bg-red-600 px-3 py-1 rounded-md hover:bg-red-700 transition text-white"
-            >
-              Logout
-            </button> */}
           </div>
         ) : (
           <div className="flex gap-2 bg-blue-500 rounded-4xl p-1">
@@ -155,7 +136,10 @@ export default function Nav() {
             {menuLinks.map((link) => (
               <a
                 key={link.name}
-                onClick={link.onClick}
+                onClick={() => {
+                  link.onClick();
+                  setIsMenuOpen(false); // close menu on click
+                }}
                 className="font-light cursor-pointer text-white transition duration-300 hover:text-blue-400 hover:shadow-[0_0_12px_rgba(255,255,255,0.7)] px-2 py-1 rounded-lg"
               >
                 {link.name}
@@ -179,12 +163,6 @@ export default function Nav() {
                     "👤"
                   )}
                 </div>
-                {/* <button
-                  onClick={handleLogout}
-                  className="bg-red-600 px-3 py-1 rounded-md hover:bg-red-700 transition text-white"
-                >
-                  Logout
-                </button> */}
               </div>
             ) : (
               <div className="flex gap-2 bg-blue-500 rounded-lg p-1">
