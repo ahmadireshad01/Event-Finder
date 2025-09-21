@@ -57,9 +57,8 @@ export default function ProfilePage() {
         }
 
         console.log("User ID from token:", userId);
-
         // Use your existing endpoint: /users/{id}
-        const res = await fetch(`http://localhost:8000/users/${userId}`, {
+        const res = await fetch(`http://172.30.10.42:8000/users/${userId}`, {
           headers: { 
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json"
