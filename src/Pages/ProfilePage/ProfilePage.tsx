@@ -31,11 +31,9 @@ export default function ProfilePage() {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
 
-      // اگر توکن یا userId موجود نبود، بعد از چند ثانیه redirect کنیم
       if (!token || !userId) {
-        setTimeout(() => {
-          navigate("/login", { replace: true });
-        }, 500);
+        // اگر اصلاً توکن یا userId نیست، مستقیم redirect
+        navigate("/login", { replace: true });
         return;
       }
 
@@ -43,6 +41,14 @@ export default function ProfilePage() {
         const res = await fetch(`http://localhost:8000/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        if (res.status === 401 || res.status === 403) {
+          // توکن نامعتبر یا منقضی
+          localStorage.removeItem("token");
+          localStorage.removeItem("userId");
+          navigate("/login", { replace: true });
+          return;
+        }
 
         if (!res.ok) throw new Error("Failed to fetch user data");
 
@@ -60,6 +66,7 @@ export default function ProfilePage() {
         ]);
       } catch (err) {
         console.error(err);
+        // خطای غیرمنتظره
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
         navigate("/login", { replace: true });
