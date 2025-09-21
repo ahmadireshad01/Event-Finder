@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { upComimgEvents } from "../data/upcoming-events";
 import EventCard from "./EventCard";
 
 interface PopularEventsProps {
@@ -25,15 +24,13 @@ export default function PopularEvents({ searchQuery }: PopularEventsProps) {
   const [visibleCount, setVisibleCount] = useState(10);
   const [allEvents, setAllEvents] = useState<Event[]>([]);
 
-  // Load events from localStorage + default events
   useEffect(() => {
     const storedEvents: Event[] = JSON.parse(
       localStorage.getItem("createdEvents") || "[]"
     );
-    setAllEvents([...storedEvents, ...upComimgEvents]);
+    setAllEvents(storedEvents);
   }, []);
 
-  // Filter events based on category and search
   const filteredEvents = allEvents.filter((event) => {
     const matchesCategory =
       selectedCategory === "All" || event.category === selectedCategory;
@@ -52,42 +49,76 @@ export default function PopularEvents({ searchQuery }: PopularEventsProps) {
     setVisibleCount(10);
   };
 
-  return (
-    <div className="flex flex-col mt-8 w-full px-[130px] pt-6 max-md:px-7 max-lg:px-7">
-      <p className="font-semibold text-3xl text-white">Popular Categories</p>
+  const defaultCategories = [
+    "Music",
+    "Art",
+    "Sports",
+    "Tech",
+    "Food",
+    "Education",
+  ];
+  const uniqueCategories = Array.from(
+    new Set(allEvents.map((e) => e.category))
+  ).filter((cat) => cat && cat.trim() !== "");
+  const allCategories = [
+    "All",
+    ...Array.from(new Set([...defaultCategories, ...uniqueCategories])),
+  ];
 
-      <div className="flex gap-2 py-7 max-md:flex-wrap">
-        {["All", "Music", "Art", "Sports", "Tech", "Food", "Education"].map(
-          (cat) => (
-            <button
-              key={cat}
-              onClick={() => handleCategoryClick(cat)}
-              className={`catagories-btn-hover px-4 h-9 rounded-xl transition ${
-                selectedCategory === cat
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-700 text-gray-200"
-              }`}
-            >
-              {cat}
-            </button>
-          )
+  return (
+    <div className="flex flex-col mt-8 w-full px-[5%] lg:px-[130px] pt-6 ">
+      <div className="flex justify-between items-center mb-6">
+        <p className="font-bold text-3xl text-white">Popular Categories</p>
+        {selectedCategory !== "All" && (
+          <span className="text-gray-400">
+            {filteredEvents.length} event
+            {filteredEvents.length !== 1 ? "s" : ""} found
+          </span>
         )}
       </div>
 
-      <p className="font-semibold pb-3 text-2xl text-white">Trending Events</p>
+      <div className="flex flex-wrap gap-3 py-4 overflow-x-auto pb-2 custom-scrollbar">
+        {allCategories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => handleCategoryClick(cat)}
+            className={`px-5 py-2 rounded-full transition-all duration-200 flex-shrink-0 ${
+              selectedCategory === cat
+                ? "bg-blue-600 text-white shadow-lg"
+                : "bg-gray-700 text-gray-200 hover:bg-gray-600"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex justify-between items-center mt-8 mb-4">
+        <p className="font-bold text-2xl text-white">Trending Events</p>
+        {filteredEvents.length > 0 && (
+          <span className="text-sm text-gray-400">
+            Showing {Math.min(visibleCount, filteredEvents.length)} of{" "}
+            {filteredEvents.length} events
+          </span>
+        )}
+      </div>
 
       {visibleEvents.length > 0 ? (
-        <div className="w-full grid grid-cols-5 gap-4 max-lg:grid-cols-4 max-md:grid-cols-3 max-sm:grid-cols-2">
-          {visibleEvents.map((theEvent, index) => (
+        <div
+          className="w-full grid gap-6 
+          grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 
+          justify-start"
+        >
+          {visibleEvents.map((theEvent) => (
             <Link to={`/event/${theEvent.id}`} key={theEvent.id}>
               <div
-                className="rounded-xl transition shadow-none bg-slate-800 border border-slate-600 flex flex-col justify-center items-center text-white"
-                style={{ height: "210px", width: "210px" }}
+                className="rounded-xl transition shadow-none bg-slate-800 border border-slate-600 
+                overflow-hidden h-[280px] w-full text-white flex flex-col items-center justify-center"
               >
                 <EventCard
                   title={theEvent.title}
                   id={theEvent.id}
-                  catagory={theEvent.category}
+                  category={theEvent.category} // fixed typo
                   location={theEvent.location}
                   image={theEvent.image}
                 />
@@ -96,27 +127,35 @@ export default function PopularEvents({ searchQuery }: PopularEventsProps) {
           ))}
         </div>
       ) : (
-        <p className="text-gray-400 py-6">No events found for this category.</p>
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="text-5xl mb-4">🔍</div>
+          <p className="text-gray-400 text-xl mb-2">No events found</p>
+          <p className="text-gray-500">
+            Try selecting a different category or adjusting your search
+          </p>
+        </div>
       )}
 
-      <div className="flex gap-4 mt-8 justify-center">
-        {visibleCount < filteredEvents.length && (
-          <button
-            className="bg-blue-500 w-32 h-9 rounded-lg btn-hover"
-            onClick={() => setVisibleCount((prev) => prev + 10)}
-          >
-            Load More
-          </button>
-        )}
-        {visibleCount > 10 && (
-          <button
-            className="bg-blue-500 w-32 h-9 rounded-lg btn-hover"
-            onClick={() => setVisibleCount(10)}
-          >
-            Show Less
-          </button>
-        )}
-      </div>
+      {filteredEvents.length > 10 && (
+        <div className="flex gap-4 mt-10 justify-center">
+          {visibleCount < filteredEvents.length && (
+            <button
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200"
+              onClick={() => setVisibleCount((prev) => prev + 10)}
+            >
+              Load More
+            </button>
+          )}
+          {visibleCount > 10 && (
+            <button
+              className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200"
+              onClick={() => setVisibleCount(10)}
+            >
+              Show Less
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
