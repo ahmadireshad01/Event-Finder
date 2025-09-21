@@ -1,101 +1,123 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Nav from "../../components/Nav";
-import React from "react";
-import { useState } from "react";
-import { setProfileInfo, profileInfo } from "../../data/profileInfo";
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  description?: string;
+  image?: string;
+}
 
 export default function EditProfilePage() {
+  const [user, setUser] = useState<User | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState("");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const DEFAULT_IMAGE = "/images/default-profile.png";
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+
+    if (!userId || !token) navigate("/login", { replace: true });
+
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/users/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setUser(data.user);
+        setName(data.user.name);
+        setEmail(data.user.email);
+        setDescription(data.user.description || "");
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchUser();
+  }, [navigate]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let newInfo = { name: name, description: description, image: image };
-    setProfileInfo(newInfo);
-    console.log(newInfo);
+    if (!user) return;
+
+    const token = localStorage.getItem("token");
+    const updatedUser = { ...user, name, description };
+
+    try {
+      await fetch(`http://localhost:8000/users/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedUser),
+      });
+
+      alert("Profile updated successfully!");
+      navigate("/profile");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update profile");
+    }
   };
+
+  if (!user) return <p className="text-white pt-20 text-center">Loading...</p>;
 
   return (
     <>
       <Nav />
-      <div className=" text-white min-h-screen flex items-center justify-center px-4 py-44">
-        <div className="w-full max-w-xl space-y-8 text-center ">
+      <div className="text-white min-h-screen flex items-center justify-center px-4 py-24">
+        <div className="w-full max-w-xl space-y-8 text-center">
           <h1 className="text-3xl font-semibold">Edit Profile</h1>
-          <img className="w-2xs ml-[7.6vw]" src={profileInfo.image} alt="" />
+          <img
+            className="w-24 h-24 mx-auto mb-4 rounded-full object-cover"
+            src={user.image || DEFAULT_IMAGE}
+            alt="Profile"
+          />
 
           <form onSubmit={handleSubmit} className="space-y-5 text-left">
             <div>
-              <label className="block mb-1 font-medium">edit Image</label>
-              <input
-                onChange={(e) => setImage(e.target.value)}
-                type="file"
-                placeholder="Your Name"
-                className="w-full bg-gray-700 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            {/* Name */}
-            <div>
               <label className="block mb-1 font-medium">Name</label>
               <input
+                value={name}
                 onChange={(e) => setName(e.target.value)}
                 type="text"
-                placeholder="Your Name"
                 className="w-full bg-gray-700 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
-            {/* Email */}
             <div>
               <label className="block mb-1 font-medium">Email</label>
               <input
-                onChange={(e) => setEmail(e.target.value)}
+                value={email}
                 type="email"
-                placeholder="Your Email"
-                className="w-full bg-gray-700 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled
+                className="w-full bg-gray-600 rounded-md p-2 text-gray-400 cursor-not-allowed"
               />
             </div>
 
-            {/* Subject */}
             <div>
-              <label className="block mb-1 font-medium">Password</label>
-              <input
-                onChange={(e) => setPassword(e.target.value)}
-                type="text"
-                placeholder="Password"
-                className="w-full bg-gray-700 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            {/* Message */}
-            <div>
-              <label className="block mb-1 font-medium">description</label>
+              <label className="block mb-1 font-medium">Description</label>
               <textarea
+                value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Your Information"
                 className="w-full h-28 bg-gray-700 rounded-md p-2 placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               ></textarea>
             </div>
 
-            {/* Submit Button */}
-            <div>
-              <button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md font-medium transition duration-200"
-              >
-                Submit
-              </button>
-            </div>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md font-medium transition duration-200"
+            >
+              Save Changes
+            </button>
           </form>
-
-          {/* Alternative contact text */}
-          <p className="text-xs text-gray-400 mt-2">
-            Alternatively, you can reach us directly at{" "}
-            <a href="mailto:support@localevents.com" className="underline">
-              support@localevents.com
-            </a>
-          </p>
         </div>
       </div>
     </>

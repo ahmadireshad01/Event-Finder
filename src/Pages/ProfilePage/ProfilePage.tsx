@@ -6,24 +6,16 @@ interface User {
   id: string;
   name: string;
   email: string;
-}
-
-interface Event {
-  id: number;
-  title: string;
-  date: string;
-  location: string;
-  image: string;
+  description?: string;
+  image?: string;
 }
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState<"saved" | "past">("saved");
   const [user, setUser] = useState<User | null>(null);
-  const [savedEvents, setSavedEvents] = useState<Event[]>([]);
-  const [pastEvents, setPastEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
+
+  const DEFAULT_IMAGE = "/images/default-profile.png";
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -31,11 +23,8 @@ export default function ProfilePage() {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
 
-      // اگر توکن یا userId موجود نبود، بعد از چند ثانیه redirect کنیم
       if (!token || !userId) {
-        setTimeout(() => {
-          navigate("/login", { replace: true });
-        }, 500);
+        navigate("/login", { replace: true });
         return;
       }
 
@@ -47,17 +36,12 @@ export default function ProfilePage() {
         if (!res.ok) throw new Error("Failed to fetch user data");
 
         const data = await res.json();
-        setUser(data.user);
+        const userData = data.user || data;
 
-        // Mock events
-        setSavedEvents([
-          { id: 1, title: "Tech Conference 2023", date: "2023-10-15", location: "San Francisco", image: "" },
-          { id: 2, title: "Music Festival", date: "2023-11-20", location: "Austin", image: "" },
-        ]);
-        setPastEvents([
-          { id: 3, title: "Art Exhibition", date: "2023-05-10", location: "New York", image: "" },
-          { id: 4, title: "Food & Wine Tasting", date: "2023-07-22", location: "Napa Valley", image: "" },
-        ]);
+        setUser({
+          ...userData,
+          image: userData.image || DEFAULT_IMAGE,
+        });
       } catch (err) {
         console.error(err);
         localStorage.removeItem("token");
@@ -71,50 +55,33 @@ export default function ProfilePage() {
     fetchUserData();
   }, [navigate]);
 
-  const handleLogout = () => {
-    setIsLoggingOut(true);
-    setTimeout(() => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
-      setUser(null);
-      setIsLoggingOut(false);
-      navigate("/login", { replace: true });
-    }, 1000);
-  };
-
-  if (isLoading || isLoggingOut) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-blue-900">
-        <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mb-4"></div>
-          <p className="text-white text-lg">{isLoggingOut ? "Logging out..." : "Loading your profile..."}</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+        Loading your profile...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 text-white">
+    <div className="min-h-screen bg-gray-900 text-white">
       <Nav />
+      <div className="pt-24 flex flex-col items-center">
+        <img
+          className="w-24 h-24 mx-auto mb-6 rounded-full object-cover"
+          src={user?.image || DEFAULT_IMAGE}
+          alt="Profile"
+        />
+        <h2 className="text-2xl font-bold mb-2">{user?.name}</h2>
+        <p className="text-gray-300 mb-2">{user?.email}</p>
+        <p className="text-gray-400 text-sm">{user?.description}</p>
 
-      <div className="pt-24 flex flex-col items-center pb-12">
-        <div className="bg-gray-800 bg-opacity-50 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md text-center border border-gray-700 transform hover:scale-105 transition-transform duration-300">
-          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-3xl font-bold">
-            {user?.name.charAt(0).toUpperCase()}
-          </div>
-          <h2 className="text-2xl font-bold mb-2">{user?.name}</h2>
-          <p className="text-gray-300 mb-2">{user?.email}</p>
-          <p className="text-gray-400 text-sm">User ID: {user?.id}</p>
-        </div>
-
-        <div className="mt-6">
-          <button
-            onClick={handleLogout}
-            className="bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
-          >
-            Logout
-          </button>
-        </div>
+        <button
+          onClick={() => navigate("/edit-profile")}
+          className="mt-6 bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-lg"
+        >
+          Edit Profile
+        </button>
       </div>
     </div>
   );
