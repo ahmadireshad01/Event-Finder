@@ -14,8 +14,8 @@ interface User {
 const getUserIdFromToken = (token: string): string | null => {
   try {
     // JWT tokens are in format: header.payload.signature
-    const payload = token.split('.')[1];
-    const decodedPayload = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    const payload = token.split(".")[1];
+    const decodedPayload = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
     const payloadObj = JSON.parse(decodedPayload);
     return payloadObj.id || payloadObj.userId || null;
   } catch (error) {
@@ -34,7 +34,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchUserData = async () => {
       setIsLoading(true);
-      
+
       // Get token from localStorage
       const token = localStorage.getItem("token");
 
@@ -51,7 +51,7 @@ export default function ProfilePage() {
       try {
         // Extract user ID from the token
         const userId = getUserIdFromToken(token);
-        
+
         if (!userId) {
           throw new Error("Could not extract user ID from token");
         }
@@ -61,7 +61,7 @@ export default function ProfilePage() {
         const res = await fetch(`http://172.30.10.42:8000/users/${userId}`, {
           headers: { 
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
         });
 
@@ -83,14 +83,13 @@ export default function ProfilePage() {
 
         const data = await res.json();
         console.log("API Response data:", data);
-        
+
         const userData = data.user || data;
 
         setUser({
           ...userData,
           image: userData.image || DEFAULT_IMAGE,
         });
-
       } catch (err) {
         console.error("Fetch error:", err);
         // Unexpected error
@@ -128,7 +127,9 @@ export default function ProfilePage() {
         />
         <h2 className="text-2xl font-bold mb-2">{user?.name}</h2>
         <p className="text-gray-300 mb-2">{user?.email}</p>
-        <p className="text-gray-400 text-sm">{user?.description || "No description provided"}</p>
+        <p className="text-gray-400 text-sm">
+          {user?.description || "No description provided"}
+        </p>
 
         <div className="mt-6 flex gap-4">
           <button
