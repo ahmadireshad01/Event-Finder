@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 interface Event {
@@ -16,6 +16,7 @@ interface Event {
 
 export default function SingleEventPage() {
   const { id } = useParams();
+  const navigate = useNavigate(); // For navigation
   const [event, setEvent] = useState<Event | null>(null);
 
   useEffect(() => {
@@ -28,14 +29,20 @@ export default function SingleEventPage() {
 
   if (!event) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white bg-gray-900">
+      <div className="min-h-screen flex flex-col items-center justify-center text-white bg-gray-900">
         <p>❌ Event not found</p>
+        <button
+          onClick={() => navigate("/")}
+          className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200"
+        >
+          Back to Home
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6 gap-6">
       <div className="bg-slate-800 p-6 rounded-xl shadow-lg flex flex-col items-center gap-4">
         <img
           src={event.image}
@@ -69,6 +76,14 @@ export default function SingleEventPage() {
           </p>
         )}
       </div>
+
+      {/* Back to Home Button */}
+      <button
+        onClick={() => navigate("/")}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200"
+      >
+        Back to Home
+      </button>
     </div>
   );
 }
