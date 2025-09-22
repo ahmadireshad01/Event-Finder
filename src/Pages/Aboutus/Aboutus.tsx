@@ -6,7 +6,7 @@ export default function AboutUs() {
   return (
     <div className=" bg-slate-900">
       <Nav />
-      <div className="bg-g text-gray-800 mt-12">
+      <div className=" text-gray-800 mt-12">
         {/* Header Section */}
         <section className="max-w-4xl mx-auto px-6 py-16 text-center">
           <p className="pb-5  text-white font-semibold text-2xl uppercase">

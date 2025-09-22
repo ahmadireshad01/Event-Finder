@@ -33,7 +33,18 @@ export default function Nav() {
         }
       },
     },
-    { name: "Contact Us", onClick: () => navigate("/contactUs") },
+    {
+      name: "Contact Us",
+      onClick: () => {
+        const token = localStorage.getItem("token");
+        if (token) {
+          navigate("/contactUs");
+        } else {
+          alert("You must login or signup to create an event!");
+          navigate("/login");
+        }
+      },
+    },
     { name: "About Us", onClick: () => navigate("/aboutUs") }, // Added About Us
   ];
 

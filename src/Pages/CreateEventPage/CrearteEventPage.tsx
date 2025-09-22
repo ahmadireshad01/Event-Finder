@@ -193,7 +193,9 @@ export default function CreateEventPage() {
       <Nav />
       <div className="text-white min-h-screen flex justify-center pt-34 py-10">
         <div className="w-full max-w-2xl space-y-6 px-10">
-          <h1 className="text-3xl font-semibold mb-6">Create Event</h1>
+          <h1 className="text-3xl font-semibold mb-6 text-center">
+            Create Event
+          </h1>
 
           {/* Status Messages */}
           {submitStatus.type === "success" && (

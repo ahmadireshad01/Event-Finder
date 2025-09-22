@@ -17,7 +17,6 @@ const FilterButton: React.FC<FilterButtonProps> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  // Close dropdown if click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (ref.current && !ref.current.contains(event.target as Node)) {

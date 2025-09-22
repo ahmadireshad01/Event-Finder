@@ -55,7 +55,7 @@ export default function ContactUsPage() {
   return (
     <>
       <Nav />
-      <div className=" text-white min-h-screen flex items-center justify-center px-4">
+      <div className=" text-white min-h-screen flex items-center justify-center px-4 pt-20">
         <div className="w-full max-w-xl space-y-8 text-center">
           <h1 className="text-2xl font-semibold">Get in Touch</h1>
 
