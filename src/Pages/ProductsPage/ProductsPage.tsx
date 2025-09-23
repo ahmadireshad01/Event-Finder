@@ -157,29 +157,6 @@ export default function ProductsPage() {
             </p>
           </div>
         )}
-
-        {/* Load More / Show Less */}
-        {visibleEvents.length > 0 && filteredEvents.length > 10 && (
-          <div className="flex gap-4 mt-8 justify-center w-full">
-            {visibleCount < filteredEvents.length && (
-              <button
-                className="bg-blue-500 w-32 h-9 rounded-lg btn-hover"
-                onClick={loadMore}
-              >
-                Load More
-              </button>
-            )}
-
-            {visibleCount > 10 && (
-              <button
-                className="bg-blue-500 w-32 h-9 rounded-lg btn-hover"
-                onClick={showLess}
-              >
-                Show Less
-              </button>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

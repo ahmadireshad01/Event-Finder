@@ -21,7 +21,6 @@ export default function CreateEventPage() {
     errors?: Array<{ field: string; message: string }>;
   }>({ type: null, message: "" });
 
-  // Check login on page load
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
