@@ -14,10 +14,7 @@ interface Event {
   location: string;
   image: string;
   date?: string;
-  time?: string;
-  description?: string;
   organizerName?: string;
-  contactInfo?: string;
 }
 
 export default function PopularEvents({ searchQuery }: PopularEventsProps) {
@@ -26,15 +23,23 @@ export default function PopularEvents({ searchQuery }: PopularEventsProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 10;
 
-  const isLoggedIn = Boolean(localStorage.getItem("token")); // Check if user is logged in
+  const isLoggedIn = Boolean(localStorage.getItem("token"));
 
   useEffect(() => {
     const storedEvents: Event[] = JSON.parse(
       localStorage.getItem("createdEvents") || "[]"
     );
-    setAllEvents(storedEvents);
+
+    // ✅ filter out expired events
+    const today = new Date().toISOString().split("T")[0]; // format YYYY-MM-DD
+    const validEvents = storedEvents.filter(
+      (event) => !event.date || event.date >= today
+    );
+
+    setAllEvents(validEvents);
   }, []);
 
+  // ✅ filtering by search & category
   const filteredEvents = allEvents.filter((event) => {
     const matchesCategory =
       selectedCategory === "All" || event.category === selectedCategory;
@@ -115,19 +120,19 @@ export default function PopularEvents({ searchQuery }: PopularEventsProps) {
 
       {/* Event Grid */}
       {currentEvents.length > 0 ? (
-        <div className="w-full grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 justify-start">
+        <div className="w-full grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {currentEvents.map((theEvent) => (
             <Link to={`/event/${theEvent.id}`} key={theEvent.id}>
-              <div className="rounded-xl transition shadow-none bg-slate-800 border border-slate-600 overflow-hidden h-[280px] w-full text-white flex flex-col items-center justify-center">
-                <EventCard
-                  title={theEvent.title}
-                  id={theEvent.id}
-                  category={theEvent.category}
-                  location={theEvent.location}
-                  image={theEvent.image}
-                  isLoggedIn={isLoggedIn} // pass login status
-                />
-              </div>
+              <EventCard
+                id={theEvent.id}
+                title={theEvent.title}
+                category={theEvent.category}
+                location={theEvent.location}
+                image={theEvent.image}
+                date={theEvent.date}
+                organizerName={theEvent.organizerName}
+                isLoggedIn={isLoggedIn}
+              />
             </Link>
           ))}
         </div>
