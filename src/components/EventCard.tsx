@@ -8,7 +8,7 @@ interface EventCardProps {
   image: string;
   date?: string;
   organizerName?: string;
-  isLoggedIn: boolean;
+  isLoggedIn?: boolean;
 }
 
 export default function EventCard({
@@ -18,7 +18,7 @@ export default function EventCard({
   image,
   date,
   organizerName,
-  isLoggedIn,
+  isLoggedIn = true,
 }: EventCardProps) {
   const [joined, setJoined] = useState(false);
 

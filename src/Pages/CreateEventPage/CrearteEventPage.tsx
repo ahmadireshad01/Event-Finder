@@ -21,6 +21,7 @@ export default function CreateEventPage() {
     errors?: Array<{ field: string; message: string }>;
   }>({ type: null, message: "" });
 
+  
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -46,28 +47,22 @@ export default function CreateEventPage() {
     });
   };
 
-  const generateUniqueId = () => {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmitStatus({ type: null, message: "" });
+    setSubmitStatus({ type: null, message: "", errors: [] });
 
     try {
-      // Convert file to base64
       let base64File = "";
       if (file) {
         base64File = await convertToBase64(file);
       }
 
-      // Prepare data for API
       const eventData = {
         eventTitle: title,
         description,
         category,
-        date: new Date(date).toISOString().split("T")[0],
+        date,
         time,
         location,
         organizerName: organizationName,
@@ -77,110 +72,46 @@ export default function CreateEventPage() {
 
       const token = localStorage.getItem("token");
 
-      // Try to send to API first
-      let apiSuccess = false;
-      try {
-        const response = await fetch(
-          "http://172.30.10.42:8000/events/uploads",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(eventData),
-          }
-        );
+      const response = await fetch("http://172.30.10.42:8000/events/uploads", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(eventData),
+      });
 
-        if (response.ok) {
-          apiSuccess = true;
-          const data = await response.json();
+      const data = await response.json();
 
-          // Also save to localStorage for immediate display
-          const newEvent = {
-            id: generateUniqueId(),
-            title,
-            category,
-            location,
-            image:
-              base64File ||
-              "https://via.placeholder.com/210x210/374151/FFFFFF?text=Event",
-            date,
-            time,
-            description,
-            // organizerName,
-            contactInfo,
-          };
-
-          const existingEvents = JSON.parse(
-            localStorage.getItem("createdEvents") || "[]"
-          );
-          const updatedEvents = [...existingEvents, newEvent];
-          localStorage.setItem("createdEvents", JSON.stringify(updatedEvents));
-
-          // Dispatch storage event to notify other components
-          window.dispatchEvent(new Event("storage"));
-
-          setSubmitStatus({
-            type: "success",
-            message: "Event created successfully!",
-          });
-        } else {
-          const data = await response.json();
-          throw new Error(data.message || "Failed to create event.");
-        }
-      } catch (apiError) {
-        console.warn("API failed, saving to localStorage only:", apiError);
-
-        // Fallback: Save to localStorage only
-        const newEvent = {
-          id: generateUniqueId(),
-          title,
-          category,
-          location,
-          image:
-            base64File ||
-            "https://via.placeholder.com/210x210/374151/FFFFFF?text=Event",
-          date,
-          time,
-          description,
-          // organizerName,
-          contactInfo,
-        };
-
-        const existingEvents = JSON.parse(
-          localStorage.getItem("createdEvents") || "[]"
-        );
-        const updatedEvents = [...existingEvents, newEvent];
-        localStorage.setItem("createdEvents", JSON.stringify(updatedEvents));
-
-        // Dispatch storage event to notify other components
-        window.dispatchEvent(new Event("storage"));
-
+      if (!response.ok) {
         setSubmitStatus({
-          type: "success",
-          message: "Event created successfully! (Saved locally)",
+          type: "error",
+          message: data.message || "Validation failed.",
+          errors: data.errors || [],
         });
+        return;
       }
 
-      // Reset form after successful submission
-      if (apiSuccess || true) {
-        // Always true in fallback case
-        setTitle("");
-        setDescription("");
-        setCategory("");
-        setDate("");
-        setTime("");
-        setLocation("");
-        setOrganizationName("");
-        setContactInfo("");
-        setFile(null);
-        setPreview(null);
-      }
-    } catch (error) {
+      setSubmitStatus({
+        type: "success",
+        message: "Event created successfully!",
+      });
+
+      // reset form
+      setTitle("");
+      setDescription("");
+      setCategory("");
+      setDate("");
+      setTime("");
+      setLocation("");
+      setOrganizationName("");
+      setContactInfo("");
+      setFile(null);
+      setPreview(null);
+    } catch (error: any) {
       setSubmitStatus({
         type: "error",
-        message: "Failed to create event. Please try again.",
+        message: error.message || "Something went wrong.",
       });
     } finally {
       setIsSubmitting(false);
@@ -196,29 +127,25 @@ export default function CreateEventPage() {
             Create Event
           </h1>
 
-          {/* Status Messages */}
+          {/* ✅ Success/Error Messages */}
           {submitStatus.type === "success" && (
             <div className="bg-green-800 text-green-200 p-3 rounded-md">
               {submitStatus.message}
             </div>
           )}
-
           {submitStatus.type === "error" && (
-            <div className="bg-red-800 text-red-200 p-3 rounded-md">
+            <div className="bg-red-800 text-red-200 p-3 rounded-md space-y-1">
               <p>{submitStatus.message}</p>
-              {submitStatus.errors && (
-                <ul className="mt-2 text-sm">
-                  {submitStatus.errors.map((error, index) => (
-                    <li key={index}>
-                      • {error.field}: {error.message}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              {submitStatus.errors?.map((err, idx) => (
+                <p key={idx} className="text-sm text-red-300">
+                  {err.field}: {err.message}
+                </p>
+              ))}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Title */}
             <div>
               <label className="block mb-1 font-medium">Event Title</label>
               <input
@@ -227,12 +154,10 @@ export default function CreateEventPage() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full bg-gray-700 border border-gray-700 rounded-md p-2"
-                required
-                minLength={5}
-                maxLength={100}
               />
             </div>
 
+            {/* Description */}
             <div>
               <label className="block mb-1 font-medium">Description</label>
               <textarea
@@ -240,31 +165,28 @@ export default function CreateEventPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full h-24 bg-gray-700 border border-gray-700 rounded-md p-2 resize-none"
-                required
-                minLength={10}
-                maxLength={1000}
               ></textarea>
             </div>
 
+            {/* Category */}
             <div>
               <label className="block mb-1 font-medium">Category</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className="w-full bg-gray-700 border border-gray-700 rounded-md p-2"
-                required
               >
                 <option value="">Select category</option>
-                <option value="Music">Music</option>
-                <option value="Art">Art</option>
-                <option value="Sports">Sports</option>
-                <option value="Tech">Tech</option>
-                <option value="Food">Food</option>
-                <option value="Education">Education</option>
+                <option value="Conference">Conference</option>
+                <option value="Workshop">Workshop</option>
+                <option value="Seminar">Seminar</option>
+                <option value="Webinar">Webinar</option>
+                <option value="Networking">Networking</option>
                 <option value="Other">Other</option>
               </select>
             </div>
 
+            {/* Date & Time */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block mb-1 font-medium">Date</label>
@@ -273,11 +195,8 @@ export default function CreateEventPage() {
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   className="w-full bg-gray-700 border border-gray-700 rounded-md p-2"
-                  required
-                  min={new Date().toISOString().split("T")[0]}
                 />
               </div>
-
               <div>
                 <label className="block mb-1 font-medium">Time</label>
                 <input
@@ -285,11 +204,11 @@ export default function CreateEventPage() {
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
                   className="w-full bg-gray-700 border border-gray-700 rounded-md p-2"
-                  required
                 />
               </div>
             </div>
 
+            {/* Location */}
             <div>
               <label className="block mb-1 font-medium">Location</label>
               <input
@@ -298,12 +217,10 @@ export default function CreateEventPage() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full bg-gray-700 border border-gray-700 rounded-md p-2"
-                required
-                minLength={5}
-                maxLength={200}
               />
             </div>
 
+            {/* Organizer */}
             <div>
               <label className="block mb-1 font-medium">Organizer Name</label>
               <input
@@ -312,12 +229,10 @@ export default function CreateEventPage() {
                 value={organizationName}
                 onChange={(e) => setOrganizationName(e.target.value)}
                 className="w-full bg-gray-700 border border-gray-700 rounded-md p-2"
-                required
-                minLength={2}
-                maxLength={50}
               />
             </div>
 
+            {/* Contact Info */}
             <div>
               <label className="block mb-1 font-medium">
                 Contact Information
@@ -328,12 +243,10 @@ export default function CreateEventPage() {
                 value={contactInfo}
                 onChange={(e) => setContactInfo(e.target.value)}
                 className="w-full bg-gray-700 border border-gray-700 rounded-md p-2"
-                required
-                minLength={5}
-                maxLength={100}
               />
             </div>
 
+            {/* File Upload */}
             <div className="border border-dashed border-gray-600 bg-[#1e1f24] rounded-md p-6 text-center hover:border-blue-500 cursor-pointer">
               <p className="text-sm font-semibold text-white mb-1">
                 Upload Event Image
@@ -343,7 +256,6 @@ export default function CreateEventPage() {
                 onChange={handleFileChange}
                 accept="image/*"
                 className="mx-auto"
-                required
               />
               {preview && (
                 <img
@@ -354,6 +266,7 @@ export default function CreateEventPage() {
               )}
             </div>
 
+            {/* Submit */}
             <div className="pt-4">
               <button
                 type="submit"
