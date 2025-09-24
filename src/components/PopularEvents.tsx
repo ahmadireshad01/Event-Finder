@@ -13,7 +13,7 @@ interface Event {
   title: string;
   category: string;
   location: string;
-  image: string; // Base64 string or URL from backend
+  myFile: string; // Base64 string or URL from backend
   date?: string;
   organizerName?: string;
 }
@@ -153,7 +153,7 @@ export default function PopularEvents({ searchQuery }: PopularEventsProps) {
                   id={theEvent.id}
                   category={theEvent.category}
                   location={theEvent.location}
-                  image={theEvent.image}
+                  image={theEvent.myFile}
                   date={theEvent.date}
                   organizerName={theEvent.organizerName}
                 />
@@ -184,3 +184,4 @@ export default function PopularEvents({ searchQuery }: PopularEventsProps) {
     </div>
   );
 }
+
